@@ -15,5 +15,7 @@ router.post('/login', [
     check('password', 'password is empty').notEmpty()
 ], userController.login);
 
+router.get('/users', userController.getUsers);
+
 
 module.exports = router;

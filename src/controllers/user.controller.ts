@@ -1,10 +1,9 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import User from '../models/user.model';
-import Role from '../models/role.model';
 const userService = require('../services/user.service');
 const bcrypt = require('bcryptjs');
-import {Document, Schema} from 'mongoose';
-import {Result, ValidationError, validationResult} from 'express-validator';
+import { Document, Schema } from 'mongoose';
+import { Result, ValidationError, validationResult } from 'express-validator';
 
 interface ILoginData {
     username: string,
@@ -18,17 +17,6 @@ interface IUser extends Document {
     password?: string;
     roles?: string[];
     cars?: Schema.Types.ObjectId[]
-}
-
-interface IRole extends Document{
-    value: string
-}
-
-const hashPassword = (password: string): string => bcrypt.hashSync(password, 8);
-
-const setUserRole = async (): Promise<string> => {
-    const role: IRole = await Role.findOne({value: "USER"});
-    return role.value;
 }
 
 class UserController {
@@ -45,8 +33,8 @@ class UserController {
             }
             const user: IUser = new User({
                 username: userData.username,
-                password: hashPassword(userData.password),
-                roles: [await setUserRole()],
+                password: userService.hashPassword(userData.password),
+                roles: [await userService.setUserRole()],
                 cars: []
             });
             await user.save();
@@ -79,6 +67,16 @@ class UserController {
             
         }
     }
+
+    async getUsers(req: Request, res: Response) {
+        try {
+            const users: IUser[] = await User.find();
+            console.log(users.length);
+        } catch (e) {
+            console.log(e);
+            res.status(400).json({message: 'Get user error'});
+        }
+    };
 }
 
 module.exports = new UserController();
