@@ -11,4 +11,8 @@ router.post('/registration', [
     express_validator_1.check('username', 'username is empty').notEmpty(),
     express_validator_1.check('password', 'incorrect password length').isLength({ min: 4, max: 20 })
 ], userController.registration);
+router.post('/login', [
+    express_validator_1.check('username', 'username is empty').notEmpty(),
+    express_validator_1.check('password', 'password is empty').notEmpty()
+], userController.login);
 module.exports = router;

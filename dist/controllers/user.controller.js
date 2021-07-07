@@ -50,5 +50,32 @@ class UserController {
         });
     }
     ;
+    login(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const errors = express_validator_1.validationResult(req);
+                if (!errors.isEmpty()) {
+                    return res.status(400).json({ message: errors });
+                }
+                const userData = req.body;
+                const user = yield user_model_1.default.findOne({ username: userData.username });
+                const validPassword = bcrypt.compareSync(userData.password, user.password);
+                if (!validPassword) {
+                    res.status(400).json({ message: `Invalid credentials` });
+                }
+                // if (!user.isEmpty(user.toString())) {
+                //     res.status(400).json({message: `User ${userData.username} not found in system`});
+                // }
+                if (user) {
+                    console.log('User');
+                }
+                else {
+                    console.log('no user');
+                }
+            }
+            catch (e) {
+            }
+        });
+    }
 }
 module.exports = new UserController();

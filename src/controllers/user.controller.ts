@@ -3,14 +3,24 @@ import User from '../models/user.model';
 import Role from '../models/role.model';
 const userService = require('../services/user.service');
 const bcrypt = require('bcryptjs');
-import { validationResult } from 'express-validator';
+import {Document, Schema} from 'mongoose';
+import {Result, ValidationError, validationResult} from 'express-validator';
 
-interface IRegisterData {
+interface ILoginData {
     username: string,
     password: string
 }
 
-interface IRole {
+interface IRegisterData extends ILoginData{}
+
+interface IUser extends Document {
+    username?: string;
+    password?: string;
+    roles?: string[];
+    cars?: Schema.Types.ObjectId[]
+}
+
+interface IRole extends Document{
     value: string
 }
 
@@ -24,7 +34,7 @@ const setUserRole = async (): Promise<string> => {
 class UserController {
     async registration(req: Request, res: Response) {
         try {
-            const errors = validationResult(req);
+            const errors: Result<ValidationError> = validationResult(req);
             if (!errors.isEmpty()) {
                 return res.status(400).json({message: errors});
             }
@@ -33,7 +43,7 @@ class UserController {
             if(await userService.checkDuplicateUsername(res, userData.username)){
                 return res.status(400).json({message: 'username already exist'});
             }
-            const user = new User({
+            const user: IUser = new User({
                 username: userData.username,
                 password: hashPassword(userData.password),
                 roles: [await setUserRole()],
@@ -46,6 +56,29 @@ class UserController {
             res.status(400).json({message: 'Registration error'});
         }
     };
+    
+    async login(req: Request, res: Response) {
+        try {
+            const errors: Result<ValidationError> = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({message: errors});
+            }
+
+            const userData: ILoginData = req.body;
+            const user: IUser = await User.findOne({username: userData.username});
+            if (!user) {
+                res.status(400).json({message: `User ${userData.username} not found in system`});
+            }
+            const validPassword: boolean = bcrypt.compareSync(userData.password, user.password);
+            if (!validPassword) {
+                res.status(400).json({message: `Invalid credentials`});
+            }
+            const token: string = userService.generateAccessToken(user._id, user.roles);
+            return res.json({token: token});
+        } catch (e) {
+            
+        }
+    }
 }
 
 module.exports = new UserController();

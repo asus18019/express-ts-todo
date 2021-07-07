@@ -10,4 +10,10 @@ router.post('/registration', [
     check('password', 'incorrect password length').isLength({min: 4, max: 20})
 ] ,userController.registration);
 
+router.post('/login', [
+    check('username', 'username is empty').notEmpty(),
+    check('password', 'password is empty').notEmpty()
+], userController.login);
+
+
 module.exports = router;
