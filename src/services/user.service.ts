@@ -1,7 +1,10 @@
-import { Request } from "express";
+import {Request} from "express";
 import User from '../models/user.model'
 import Role from "../models/role.model";
-import { Document } from "mongoose";
+import {Document} from "mongoose";
+import {IUser} from "../controllers/user.controller";
+import {ICar} from "./car.service";
+
 const jwt = require('jsonwebtoken');
 const { secret } = require('../config');
 const bcrypt = require('bcryptjs');
@@ -13,6 +16,10 @@ interface IAccessTokenPayload {
 
 interface IRole extends Document{
     value: string
+}
+
+export interface IUserID {
+    id: string
 }
 
 class UserService {
@@ -33,6 +40,18 @@ class UserService {
             role
         }
         return jwt.sign(payload, secret, {expiresIn: "24h"});
+    }
+
+    getAuthUserIDByToken(req: Request): IUserID {
+        const token: string | undefined = req.headers?.authorization?.split(' ')[1];
+        return jwt.verify(token, secret);
+    }
+
+    async setCarIDtoUser(userID: string, car: ICar): Promise<IUser> {
+        const user: IUser = await User.findById(userID);
+        user.cars.push(car._id);
+        await user.save();
+        return user;
     }
 }
 

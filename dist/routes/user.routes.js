@@ -15,4 +15,5 @@ router.post('/login', [
     express_validator_1.check('username', 'username is empty').notEmpty(),
     express_validator_1.check('password', 'password is empty').notEmpty()
 ], userController.login);
+router.get('/users', userController.getUsers);
 module.exports = router;

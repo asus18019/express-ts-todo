@@ -12,15 +12,15 @@ interface ILoginData {
 
 interface IRegisterData extends ILoginData{}
 
-interface IUser extends Document {
-    username?: string;
-    password?: string;
-    roles?: string[];
-    cars?: Schema.Types.ObjectId[]
+export interface IUser extends Document {
+    username: string,
+    password: string,
+    roles: string[],
+    cars: Schema.Types.ObjectId[]
 }
 
 class UserController {
-    async registration(req: Request, res: Response) {
+    async registration(req: Request, res: Response): Promise<Response | undefined> {
         try {
             const errors: Result<ValidationError> = validationResult(req);
             if (!errors.isEmpty()) {
@@ -45,7 +45,7 @@ class UserController {
         }
     };
     
-    async login(req: Request, res: Response) {
+    async login(req: Request, res: Response): Promise<Response | undefined> {
         try {
             const errors: Result<ValidationError> = validationResult(req);
             if (!errors.isEmpty()) {
@@ -64,13 +64,15 @@ class UserController {
             const token: string = userService.generateAccessToken(user._id, user.roles);
             return res.json({token: token});
         } catch (e) {
-            
+            console.log(e);
+            res.status(400).json({message: 'Login error'});
         }
     }
 
     async getUsers(req: Request, res: Response) {
         try {
             const users: IUser[] = await User.find();
+            res.json(users);
             console.log(users.length);
         } catch (e) {
             console.log(e);

@@ -13,15 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_model_1 = __importDefault(require("../models/user.model"));
-const role_model_1 = __importDefault(require("../models/role.model"));
 const userService = require('../services/user.service');
 const bcrypt = require('bcryptjs');
 const express_validator_1 = require("express-validator");
-const hashPassword = (password) => bcrypt.hashSync(password, 8);
-const setUserRole = () => __awaiter(void 0, void 0, void 0, function* () {
-    const role = yield role_model_1.default.findOne({ value: "USER" });
-    return role.value;
-});
 class UserController {
     registration(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -36,8 +30,8 @@ class UserController {
                 }
                 const user = new user_model_1.default({
                     username: userData.username,
-                    password: hashPassword(userData.password),
-                    roles: [yield setUserRole()],
+                    password: userService.hashPassword(userData.password),
+                    roles: [yield userService.setUserRole()],
                     cars: []
                 });
                 yield user.save();
@@ -59,23 +53,32 @@ class UserController {
                 }
                 const userData = req.body;
                 const user = yield user_model_1.default.findOne({ username: userData.username });
+                if (!user) {
+                    res.status(400).json({ message: `User ${userData.username} not found in system` });
+                }
                 const validPassword = bcrypt.compareSync(userData.password, user.password);
                 if (!validPassword) {
                     res.status(400).json({ message: `Invalid credentials` });
                 }
-                // if (!user.isEmpty(user.toString())) {
-                //     res.status(400).json({message: `User ${userData.username} not found in system`});
-                // }
-                if (user) {
-                    console.log('User');
-                }
-                else {
-                    console.log('no user');
-                }
+                const token = userService.generateAccessToken(user._id, user.roles);
+                return res.json({ token: token });
             }
             catch (e) {
             }
         });
     }
+    getUsers(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const users = yield user_model_1.default.find();
+                console.log(users.length);
+            }
+            catch (e) {
+                console.log(e);
+                res.status(400).json({ message: 'Get user error' });
+            }
+        });
+    }
+    ;
 }
 module.exports = new UserController();

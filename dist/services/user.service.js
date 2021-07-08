@@ -13,7 +13,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_model_1 = __importDefault(require("../models/user.model"));
+const role_model_1 = __importDefault(require("../models/role.model"));
+const jwt = require('jsonwebtoken');
+const { secret } = require('../config');
+const bcrypt = require('bcryptjs');
 class UserService {
+    constructor() {
+        this.hashPassword = (password) => bcrypt.hashSync(password, 8);
+        this.generateAccessToken = (id, role) => {
+            const payload = {
+                id,
+                role
+            };
+            return jwt.sign(payload, secret, { expiresIn: "24h" });
+        };
+    }
+    setUserRole() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const role = yield role_model_1.default.findOne({ value: "USER" });
+            return role.value;
+        });
+    }
     checkDuplicateUsername(res, username) {
         return __awaiter(this, void 0, void 0, function* () {
             return user_model_1.default.findOne({ username });
