@@ -11,6 +11,10 @@ router.post('/car', [
     check('weight', 'weight is empty').isLength({min: 1})
 ] ,carController.createCarByUser);
 
-router.get('/car', carController.getUserCars)
+router.get('/car', carController.getUserCars);
+
+router.delete('/car', [
+    check('_id', 'car _id is empty').isLength({min: 1})
+], carController.deleteCarByUser);
 
 module.exports = router;

@@ -25,12 +25,12 @@ export interface IUserID {
 class UserService {
     hashPassword = (password: string): string => bcrypt.hashSync(password, 8);
 
-    async setUserRole(): Promise<string> {
+    setUserRole = async (): Promise<string> => {
         const role: IRole = await Role.findOne({value: "USER"});
         return role.value;
     }
 
-    async checkDuplicateUsername (res: Request, username: string): Promise<boolean> {
+    checkDuplicateUsername = async (res: Request, username: string): Promise<boolean> => {
         return User.findOne({username});
     }
 
@@ -42,12 +42,12 @@ class UserService {
         return jwt.sign(payload, secret, {expiresIn: "24h"});
     }
 
-    getAuthUserIDByToken(req: Request): IUserID {
+    getAuthUserIDByToken = (req: Request): IUserID => {
         const token: string | undefined = req.headers?.authorization?.split(' ')[1];
         return jwt.verify(token, secret);
     }
 
-    async setCarIDtoUser(userID: string, car: ICar): Promise<IUser> {
+    setCarIDtoUser = async (userID: string, car: ICar): Promise<IUser> => {
         const user: IUser = await User.findById(userID);
         user.cars.push(car._id);
         await user.save();

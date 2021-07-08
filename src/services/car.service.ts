@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Document } from "mongoose";
 import Car from '../models/car.model';
 import User from '../models/user.model';
+import {IUser} from "../controllers/user.controller";
 const userService = require('./user.service');
 
 // @ts-ignore
@@ -12,14 +13,14 @@ export interface ICar extends Document {
     weight: number
 }
 
-interface ICarsIds {
+export interface ICarsIds {
     cars: string[]
 }
 
 class CarService {
-    async createCar(req: Request, userID: string): Promise<ICar> {
+    createCar = async (req: Request, userID: string): Promise<ICar> => {
         const car: ICar = req.body;
-        const newCar: ICar = new Car({
+        const newCar: ICar = await new Car({
             title: car.title,
             model: car.model,
             color: car.color,
@@ -30,7 +31,7 @@ class CarService {
         return newCar;
     };
 
-    async getCars (userID: string): Promise<object[]> {
+    getCars = async (userID: string): Promise<object[]> => {
         const carsIds: ICarsIds = await User.findById(userID);
         let cars: object[] = [];
         for (const car of carsIds.cars) {
@@ -40,6 +41,24 @@ class CarService {
             }
         }
         return cars;
+    }
+
+    isCarBelongsToUser = (cars: string[], carID: string): boolean => {
+        let belongs: boolean = false;
+        for (const car of cars) {
+            if(car.toString() === carID) {
+                belongs = true;
+            }
+        }
+        return belongs;
+    }
+
+    deleteCar = async (carID: string, userID: string): Promise<object[]> => {
+        const user: IUser = await User.findById(userID);
+        user.cars = user.cars.filter(car => car.toString() !== carID);
+        await user.save();
+        await Car.findByIdAndDelete(carID);
+        return await this.getCars(userID);
     }
 
     getCar = async(carID: string): Promise<ICar> => Car.findById(carID);

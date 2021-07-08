@@ -20,7 +20,7 @@ export interface IUser extends Document {
 }
 
 class UserController {
-    async registration(req: Request, res: Response): Promise<Response | undefined> {
+    registration = async (req: Request, res: Response): Promise<Response | undefined> => {
         try {
             const errors: Result<ValidationError> = validationResult(req);
             if (!errors.isEmpty()) {
@@ -45,7 +45,7 @@ class UserController {
         }
     };
     
-    async login(req: Request, res: Response): Promise<Response | undefined> {
+    login = async (req: Request, res: Response): Promise<Response | undefined> => {
         try {
             const errors: Result<ValidationError> = validationResult(req);
             if (!errors.isEmpty()) {
@@ -69,11 +69,10 @@ class UserController {
         }
     }
 
-    async getUsers(req: Request, res: Response) {
+    getUsers = async (req: Request, res: Response): Promise<Response | undefined> => {
         try {
             const users: IUser[] = await User.find();
-            res.json(users);
-            console.log(users.length);
+            return res.json(users);
         } catch (e) {
             console.log(e);
             res.status(400).json({message: 'Get user error'});
