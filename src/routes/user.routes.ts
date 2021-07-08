@@ -1,8 +1,9 @@
-import {Request, Response} from "express";
 import Router from 'express';
-const userController = require('../controllers/user.controller');
-const router = Router();
 import { check } from 'express-validator';
+const userController = require('../controllers/user.controller');
+const roleMiddleware = require('../middleware/role.middleware');
+const authMiddleware = require('../middleware/auth.middleware');
+const router = Router();
 
 
 router.post('/registration', [
@@ -15,7 +16,7 @@ router.post('/login', [
     check('password', 'password is empty').notEmpty()
 ], userController.login);
 
-router.get('/users', userController.getUsers);
+router.get('/users', authMiddleware(), userController.getUsers);
 
 
 module.exports = router;

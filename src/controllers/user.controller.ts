@@ -19,7 +19,13 @@ export interface IUser extends Document {
     cars: Schema.Types.ObjectId[]
 }
 
-class UserController {
+interface IUserController {
+    registration(req: Request, res: Response): Promise<Response | undefined>,
+    login(req: Request, res: Response): Promise<Response | undefined>,
+    getUsers(req: Request, res: Response): Promise<Response | undefined>
+}
+
+class UserController implements IUserController{
     registration = async (req: Request, res: Response): Promise<Response | undefined> => {
         try {
             const errors: Result<ValidationError> = validationResult(req);

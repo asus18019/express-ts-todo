@@ -10,7 +10,13 @@ interface ICarId {
     _id: string
 }
 
-class CarController {
+interface ICarController {
+    createCarByUser(req: Request, res: Response): Promise<Response | undefined>,
+    getUserCars(req: Request, res: Response): Promise<Response | undefined>,
+    deleteCarByUser(req: Request, res: Response): Promise<Response | undefined>
+}
+
+class CarController implements ICarController{
     createCarByUser = async (req: Request, res: Response): Promise<Response | undefined> => {
         try {
             const userID: IUserID = userService.getAuthUserIDByToken(req);

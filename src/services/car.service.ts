@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request } from "express";
 import { Document } from "mongoose";
 import Car from '../models/car.model';
 import User from '../models/user.model';
@@ -17,7 +17,15 @@ export interface ICarsIds {
     cars: string[]
 }
 
-class CarService {
+interface ICarService {
+    createCar(req: Request, userID: string): Promise<ICar>,
+    getCars(userID: string): Promise<object[]>,
+    isCarBelongsToUser(cars: string[], carID: string): boolean,
+    deleteCar(carID: string, userID: string): Promise<object[]>,
+    getCar(carID: string): Promise<ICar>
+}
+
+class CarService implements ICarService{
     createCar = async (req: Request, userID: string): Promise<ICar> => {
         const car: ICar = req.body;
         const newCar: ICar = await new Car({

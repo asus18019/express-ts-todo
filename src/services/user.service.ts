@@ -22,7 +22,16 @@ export interface IUserID {
     id: string
 }
 
-class UserService {
+interface IUserService {
+    hashPassword(password: string): string,
+    setUserRole(): Promise<string>,
+    checkDuplicateUsername(res: Request, username: string): Promise<boolean>,
+    generateAccessToken(id: string, role: string): string,
+    getAuthUserIDByToken(req: Request): IUserID,
+    setCarIDtoUser(userID: string, car: ICar): Promise<IUser>
+}
+
+class UserService implements IUserService{
     hashPassword = (password: string): string => bcrypt.hashSync(password, 8);
 
     setUserRole = async (): Promise<string> => {
