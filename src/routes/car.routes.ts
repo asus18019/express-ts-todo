@@ -18,4 +18,9 @@ router.delete('/car', roleMiddleware(["USER", "ADMIN"]), [
     check('_id', 'car _id is empty').isLength({min: 1})
 ], carController.deleteCarByUser);
 
+router.put('/car', [
+    check('_id', 'car _id is empty').isLength({min: 1})
+], roleMiddleware(["USER", "ADMIN"]), carController.updateCar);
+
+
 module.exports = router;

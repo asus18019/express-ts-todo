@@ -20,6 +20,13 @@ const bcrypt = require('bcryptjs');
 class UserService {
     constructor() {
         this.hashPassword = (password) => bcrypt.hashSync(password, 8);
+        this.setUserRole = () => __awaiter(this, void 0, void 0, function* () {
+            const role = yield role_model_1.default.findOne({ value: "USER" });
+            return role.value;
+        });
+        this.checkDuplicateUsername = (res, username) => __awaiter(this, void 0, void 0, function* () {
+            return user_model_1.default.findOne({ username });
+        });
         this.generateAccessToken = (id, role) => {
             const payload = {
                 id,
@@ -27,16 +34,16 @@ class UserService {
             };
             return jwt.sign(payload, secret, { expiresIn: "24h" });
         };
-    }
-    setUserRole() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const role = yield role_model_1.default.findOne({ value: "USER" });
-            return role.value;
-        });
-    }
-    checkDuplicateUsername(res, username) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return user_model_1.default.findOne({ username });
+        this.getAuthUserIDByToken = (req) => {
+            var _a, _b;
+            const token = (_b = (_a = req.headers) === null || _a === void 0 ? void 0 : _a.authorization) === null || _b === void 0 ? void 0 : _b.split(' ')[1];
+            return jwt.verify(token, secret);
+        };
+        this.setCarIDtoUser = (userID, car) => __awaiter(this, void 0, void 0, function* () {
+            const user = yield user_model_1.default.findById(userID);
+            user.cars.push(car._id);
+            yield user.save();
+            return user;
         });
     }
 }

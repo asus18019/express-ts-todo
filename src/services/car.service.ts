@@ -17,12 +17,21 @@ export interface ICarsIds {
     cars: string[]
 }
 
+interface ICarUpdates {
+    _id?: string,
+    title?: string,
+    model?: string,
+    color?: string,
+    weight?: number
+}
+
 interface ICarService {
     createCar(req: Request, userID: string): Promise<ICar>,
     getCars(userID: string): Promise<object[]>,
     isCarBelongsToUser(cars: string[], carID: string): boolean,
     deleteCar(carID: string, userID: string): Promise<object[]>,
-    getCar(carID: string): Promise<ICar>
+    getCar(carID: string): Promise<ICar>,
+    updateCar(req: Request, carID: string): Promise<ICar>
 }
 
 class CarService implements ICarService{
@@ -67,6 +76,14 @@ class CarService implements ICarService{
         await user.save();
         await Car.findByIdAndDelete(carID);
         return await this.getCars(userID);
+    }
+
+    updateCar = async (req: Request, carID: string): Promise<ICar> => {
+        let updates: ICarUpdates = req.body;
+        delete updates._id;
+        const car = await Car.findByIdAndUpdate(carID, updates);
+        await car.save()
+        return await this.getCar(carID);
     }
 
     getCar = async(carID: string): Promise<ICar> => Car.findById(carID);

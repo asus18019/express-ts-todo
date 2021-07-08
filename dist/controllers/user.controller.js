@@ -17,8 +17,8 @@ const userService = require('../services/user.service');
 const bcrypt = require('bcryptjs');
 const express_validator_1 = require("express-validator");
 class UserController {
-    registration(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
+    constructor() {
+        this.registration = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const errors = express_validator_1.validationResult(req);
                 if (!errors.isEmpty()) {
@@ -42,10 +42,7 @@ class UserController {
                 res.status(400).json({ message: 'Registration error' });
             }
         });
-    }
-    ;
-    login(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const errors = express_validator_1.validationResult(req);
                 if (!errors.isEmpty()) {
@@ -64,14 +61,14 @@ class UserController {
                 return res.json({ token: token });
             }
             catch (e) {
+                console.log(e);
+                res.status(400).json({ message: 'Login error' });
             }
         });
-    }
-    getUsers(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.getUsers = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const users = yield user_model_1.default.find();
-                console.log(users.length);
+                return res.json(users);
             }
             catch (e) {
                 console.log(e);
@@ -79,6 +76,5 @@ class UserController {
             }
         });
     }
-    ;
 }
 module.exports = new UserController();

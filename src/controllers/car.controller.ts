@@ -13,7 +13,8 @@ interface ICarId {
 interface ICarController {
     createCarByUser(req: Request, res: Response): Promise<Response | undefined>,
     getUserCars(req: Request, res: Response): Promise<Response | undefined>,
-    deleteCarByUser(req: Request, res: Response): Promise<Response | undefined>
+    deleteCarByUser(req: Request, res: Response): Promise<Response | undefined>,
+    updateCar(req: Request, res: Response): Promise<Response | undefined>
 }
 
 class CarController implements ICarController{
@@ -54,6 +55,29 @@ class CarController implements ICarController{
             }
             const cars: ICar[] = await carService.deleteCar(carID._id, userID.id);
             res.json(cars);
+        } catch (e) {
+            console.log(e)
+            res.status(400).json({message: 'Delete car error', errors: e});
+        }
+    }
+
+    updateCar = async (req: Request, res: Response): Promise<Response | undefined> => {
+        try {
+            const errors: Result<ValidationError> = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({message: errors});
+            }
+
+            const carID: ICarId = req.body;
+            const userID: IUserID = userService.getAuthUserIDByToken(req);
+            const userCars: ICarsIds = await User.findById(userID.id)
+
+            if(!await carService.isCarBelongsToUser(userCars.cars, carID._id)){
+                return res.status(400).json({message: 'Car not belongs to auth user'});
+            }
+
+            const updatedCar: ICar = await carService.updateCar(req, carID._id);
+            res.json(updatedCar);
         } catch (e) {
             console.log(e)
             res.status(400).json({message: 'Delete car error', errors: e});

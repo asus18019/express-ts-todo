@@ -17,7 +17,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const app = express_1.default();
 const port = 3000;
 app.use(express_1.default.json());
-app.use('/api', require('./routes/user.routes'));
+app.use('/api', require('./routes/user.routes'), require('./routes/car.routes'));
 const start = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield mongoose_1.default.connect('mongodb+srv://Admin:11qqaa@cluster0.huyrw.mongodb.net/garbage?retryWrites=true&w=majority', {
