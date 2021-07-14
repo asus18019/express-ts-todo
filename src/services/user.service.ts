@@ -25,7 +25,7 @@ export interface IUserID {
 interface IUserService {
     hashPassword(password: string): string,
     setUserRole(): Promise<string>,
-    checkDuplicateUsername(res: Request, username: string): Promise<boolean>,
+    checkDuplicateUsername(res: Request, username: string): Promise<IUser>,
     generateAccessToken(id: string, role: string): string,
     getAuthUserIDByToken(req: Request): IUserID,
     setCarIDtoUser(userID: string, car: ICar): Promise<IUser>
@@ -39,7 +39,7 @@ class UserService implements IUserService{
         return role.value;
     }
 
-    checkDuplicateUsername = async (res: Request, username: string): Promise<boolean> => {
+    checkDuplicateUsername = async (res: Request, username: string): Promise<IUser> => {
         return User.findOne({username});
     }
 
